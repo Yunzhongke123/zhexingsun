@@ -2,10 +2,90 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <title>学生信息管理系统 - 管理</title>
-    <link rel="stylesheet" href="styles.css">
+    <title>学生信息管理系统</title>
+    <style>
+        /* CSS 样式 */
+        body {
+            font-family: Arial, sans-serif;
+        }
+
+        .login-container, .register-container, .management-container {
+            width: 400px;
+            margin: 50px auto;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        h2 {
+            text-align: center;
+        }
+
+        form {
+            display: flex;
+            flex-direction: column;
+        }
+
+        label {
+            margin-top: 10px;
+        }
+
+        input[type="text"], input[type="password"], input[type="number"] {
+            padding: 8px;
+            margin-top: 5px;
+            border: 1px solid #ddd;
+            border-radius: 3px;
+        }
+
+        button {
+            margin-top: 15px;
+            padding: 10px;
+            background-color: #28a745;
+            color: white;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #218838;
+        }
+
+        /* 使管理系统页面和登录页面区别 */
+        .management-container {
+            display: none; /* 默认隐藏 */
+        }
+    </style>
 </head>
 <body>
+    <!-- 登录页面 -->
+    <div class="login-container">
+        <h2>学生信息管理系统</h2>
+        <form id="loginForm">
+            <label for="username">用户名：</label>
+            <input type="text" id="username" name="username" required>
+            <label for="password">密码：</label>
+            <input type="password" id="password" name="password" required>
+            <button type="submit">登录</button>
+        </form>
+        <p>没有账户？<a href="#" onclick="showRegisterPage()">注册</a></p>
+    </div>
+
+    <!-- 注册页面 -->
+    <div class="register-container" style="display:none;">
+        <h2>注册新账户</h2>
+        <form id="registerForm">
+            <label for="newUsername">用户名:</label>
+            <input type="text" id="newUsername" name="username" required>
+            <label for="newPassword">密码:</label>
+            <input type="password" id="newPassword" name="password" required>
+            <button type="submit">注册</button>
+        </form>
+        <p>已有账户？<a href="#" onclick="showLoginPage()">登录</a></p>
+    </div>
+
+    <!-- 学生信息管理系统 -->
     <div class="management-container">
         <h2>学生信息管理</h2>
         
@@ -44,7 +124,159 @@
             <button type="submit">添加</button>
         </form>
     </div>
-    
-    <script src="scripts.js"></script>
+
+    <script>
+        // 登录逻辑 (模拟登录验证)
+        document.getElementById("loginForm").addEventListener("submit", function(event) {
+            event.preventDefault();
+            const username = document.getElementById("username").value;
+            const password = document.getElementById("password").value;
+            
+            // 假设用户名和密码为固定值（这里只是为了演示）
+            if (username === "admin" && password === "123456") {
+                alert("登录成功！");
+                // 隐藏登录页面，显示学生管理页面
+                document.querySelector(".login-container").style.display = "none";
+                document.querySelector(".management-container").style.display = "block";
+            } else {
+                alert("用户名或密码错误！");
+            }
+        });
+
+        // 注册逻辑
+        document.getElementById("registerForm").addEventListener("submit", function(event) {
+            event.preventDefault();
+            const newUsername = document.getElementById("newUsername").value;
+            const newPassword = document.getElementById("newPassword").value;
+            
+            // 假设注册成功后跳转到登录页面（这里只是模拟）
+            alert("注册成功！请登录。");
+            showLoginPage(); // 跳转回登录页面
+        });
+
+        // 显示登录页面
+        function showLoginPage() {
+            document.querySelector(".login-container").style.display = "block";
+            document.querySelector(".register-container").style.display = "none";
+        }
+
+        // 显示注册页面
+        function showRegisterPage() {
+            document.querySelector(".login-container").style.display = "none";
+            document.querySelector(".register-container").style.display = "block";
+        }
+
+        // 学生管理系统的 JavaScript 逻辑
+        document.getElementById("addStudentForm").addEventListener("submit", function(event) {
+            event.preventDefault();
+            addStudent();
+        });
+
+        let students = [];
+
+        function addStudent() {
+            const studentId = document.getElementById("studentId").value;
+            const name = document.getElementById("name").value;
+            const age = document.getElementById("age").value;
+            
+            // 输入验证，确保所有字段都已填写
+            if (!studentId || !name || !age) {
+                alert("请填写所有学生信息！");
+                return;
+            }
+
+            // 判断学生ID是否已经存在
+            const existingStudent = students.find(student => student.id === studentId);
+            if (existingStudent) {
+                alert("学号已存在，请修改后重新提交！");
+                return;
+            }
+
+            const student = { id: studentId, name: name, age: age };
+            students.push(student);
+            displayStudents(students);
+            clearForm(); // 清空表单
+        }
+
+        function deleteStudent(id) {
+            students = students.filter(student => student.id !== id);
+            displayStudents(students);
+        }
+
+        function searchStudent() {
+            const query = document.getElementById("search").value.toLowerCase();
+            const results = students.filter(student => 
+                student.id.includes(query) || student.name.toLowerCase().includes(query)
+            );
+            displayStudents(results);
+        }
+
+        function showAllStudents() {
+            displayStudents(students);
+        }
+
+        function displayStudents(studentList) {
+            const studentListElement = document.getElementById("studentList");
+            studentListElement.innerHTML = "";
+            studentList.forEach(student => {
+                const row = `<tr>
+                    <td>${student.id}</td>
+                    <td>${student.name}</td>
+                    <td>${student.age}</td>
+                    <td>
+                        <button onclick="deleteStudent('${student.id}')">删除</button>
+                        <button onclick="editStudent('${student.id}')">修改</button>
+                    </td>
+                </tr>`;
+                studentListElement.insertAdjacentHTML("beforeend", row);
+            });
+        }
+
+        function editStudent(id) {
+            const student = students.find(s => s.id === id);
+            if (student) {
+                document.getElementById("studentId").value = student.id;
+                document.getElementById("name").value = student.name;
+                document.getElementById("age").value = student.age;
+                
+                // 修改按钮行为改为更新信息
+                document.getElementById("addStudentForm").onsubmit = function(event) {
+                    event.preventDefault();
+                    updateStudent(id);  // 更新学生信息
+                };
+            }
+        }
+
+        function updateStudent(id) {
+            const studentIndex = students.findIndex(s => s.id === id);
+            if (studentIndex !== -1) {
+                const studentId = document.getElementById("studentId").value;
+                const name = document.getElementById("name").value;
+                const age = document.getElementById("age").value;
+
+                // 输入验证，确保所有字段都已填写
+                if (!studentId || !name || !age) {
+                    alert("请填写所有学生信息！");
+                    return;
+                }
+
+                // 更新学生信息
+                students[studentIndex] = { id: studentId, name: name, age: age };
+                displayStudents(students);
+                clearForm(); // 清空表单
+                // 恢复表单提交行为
+                document.getElementById("addStudentForm").onsubmit = function(event) {
+                    event.preventDefault();
+                    addStudent();
+                };
+            }
+        }
+
+        function clearForm() {
+            document.getElementById("studentId").value = "";
+            document.getElementById("name").value = "";
+            document.getElementById("age").value = "";
+        }
+    </script>
 </body>
 </html>
